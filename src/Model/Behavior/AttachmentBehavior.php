@@ -16,5 +16,9 @@ class AttachmentBehavior extends Behavior
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected $_defaultConfig = [
+        'table' => 'attachments',
+        'path' => WWW_ROOT . 'attachments',
+        'fields' => []
+    ];
 }
