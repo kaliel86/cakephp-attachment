@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Attachment\Model\Behavior;
 
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
 use Cake\ORM\Behavior;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -33,7 +35,7 @@ class AttachmentBehavior extends Behavior
     public function initialize(array $config): void
     {
         $this->attachmentsTable = TableRegistry::getTableLocator()->get($this->getConfig('table'));
-        $this->setupAssociations();
+        // $this->setupAssociations();
     }
 
     protected function setupAssociations()
@@ -51,6 +53,7 @@ class AttachmentBehavior extends Behavior
             }
 
             $assoc
+                ->setTarget($this->attachmentsTable)
                 ->setJoinType('LEFT')
                 ->setForeignKey('foreign_key')
                 ->setProperty($field)
@@ -59,20 +62,23 @@ class AttachmentBehavior extends Behavior
                     $assocName . '.model' => $currentTable->getAlias(),
                     $assocName . '.field' => $field
                 ]);
-
-            $currentTable->hasMany('cool');
         }
 
-        debug($currentTable->associations());
+        //debug($currentTable->associations());
     }
 
-    protected function setupHasOne(string $field, Table $table): void
+    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
+        foreach ($this->getConfig('fields') as $field => $type) {
 
-    }
-
-    protected function setupHasMany(string $field, Table $table): void
-    {
-        $table->hasMany('Attachments_');
+            /*
+             * TODO change accessible fields in setup association
+             * https://book.cakephp.org/4/en/orm/saving-data.html#changing-accessible-fields
+             */
+            $entity->setAccess($field, true);
+            $data = $entity->get($field);
+            debug($data);
+        }
+        die();
     }
 }
